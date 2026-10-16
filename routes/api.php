@@ -19,6 +19,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 
+    Route::get('/maintenance-requests', [MaintenanceRequestController::class, 'index'])
+        ->name('maintenance-requests.index');
+
     Route::post('/maintenance-requests', [MaintenanceRequestController::class, 'store'])
         ->name('maintenance-requests.store');
 });

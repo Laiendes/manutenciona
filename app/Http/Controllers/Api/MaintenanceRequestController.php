@@ -7,12 +7,23 @@ use App\Http\Requests\StoreMaintenanceRequestRequest;
 use App\Http\Resources\MaintenanceRequestResource;
 use App\Services\MaintenanceRequestService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MaintenanceRequestController extends Controller
 {
     public function __construct(
         private MaintenanceRequestService $maintenanceRequestService,
     ) {}
+
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $maintenanceRequests = $this->maintenanceRequestService->listForUser(
+            $request->user()
+        );
+
+        return MaintenanceRequestResource::collection($maintenanceRequests);
+    }
 
     public function store(StoreMaintenanceRequestRequest $request): JsonResponse
     {

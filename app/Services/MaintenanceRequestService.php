@@ -8,6 +8,7 @@ use App\Models\MaintenanceRequest;
 use App\Models\User;
 use App\Repositories\MaintenanceRequestHistoryRepository;
 use App\Repositories\MaintenanceRequestRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class MaintenanceRequestService
@@ -16,6 +17,11 @@ class MaintenanceRequestService
         private MaintenanceRequestRepository $maintenanceRequestRepository,
         private MaintenanceRequestHistoryRepository $maintenanceRequestHistoryRepository,
     ) {}
+
+    public function listForUser(User $user): Collection
+    {
+        return $this->maintenanceRequestRepository->listForUser($user);
+    }
 
     public function create(array $data, User $user): MaintenanceRequest
     {
