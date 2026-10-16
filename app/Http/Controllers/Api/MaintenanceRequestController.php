@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMaintenanceRequestRequest;
+use App\Http\Resources\MaintenanceRequestHistoryResource;
 use App\Http\Resources\MaintenanceRequestResource;
 use App\Services\MaintenanceRequestService;
 use Illuminate\Http\JsonResponse;
@@ -45,5 +46,15 @@ class MaintenanceRequestController extends Controller
         return (new MaintenanceRequestResource($maintenanceRequest))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function history(int $id, Request $request): AnonymousResourceCollection
+    {
+        $history = $this->maintenanceRequestService->getHistory(
+            $id,
+            $request->user()
+        );
+
+        return MaintenanceRequestHistoryResource::collection($history);
     }
 }

@@ -27,4 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/maintenance-requests', [MaintenanceRequestController::class, 'store'])
         ->name('maintenance-requests.store');
+
+    Route::get('/maintenance-requests/{id}/history', [MaintenanceRequestController::class, 'history'])
+        ->name('maintenance-requests.history');
 });

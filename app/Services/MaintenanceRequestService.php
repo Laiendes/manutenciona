@@ -44,6 +44,14 @@ class MaintenanceRequestService
         return $maintenanceRequest;
     }
 
+    public function getHistory(int $id, User $user): Collection
+    {
+        $maintenanceRequest = $this->findById($id, $user);
+
+        return $this->maintenanceRequestHistoryRepository
+            ->findByMaintenanceRequestId($maintenanceRequest->id);
+    }
+
     public function create(array $data, User $user): MaintenanceRequest
     {
         return DB::transaction(function () use ($data, $user): MaintenanceRequest {
