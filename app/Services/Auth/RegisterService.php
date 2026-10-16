@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use App\Enums\UserRoleEnum;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +21,7 @@ class RegisterService
                 'password' => $data['password'],
             ]);
 
-            $user->role = 'requester';
+            $user->role = UserRoleEnum::Requester;
             $user->save();
 
             $token = $user->createToken('auth_token')->plainTextToken;
