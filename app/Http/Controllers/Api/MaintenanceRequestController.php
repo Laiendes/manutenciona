@@ -25,6 +25,16 @@ class MaintenanceRequestController extends Controller
         return MaintenanceRequestResource::collection($maintenanceRequests);
     }
 
+    public function show(int $id, Request $request): MaintenanceRequestResource
+    {
+        $maintenanceRequest = $this->maintenanceRequestService->findById(
+            $id,
+            $request->user()
+        );
+
+        return new MaintenanceRequestResource($maintenanceRequest);
+    }
+
     public function store(StoreMaintenanceRequestRequest $request): JsonResponse
     {
         $maintenanceRequest = $this->maintenanceRequestService->create(

@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Enums\MaintenanceRequestPriorityEnum;
 use App\Enums\MaintenanceRequestStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Models\MaintenanceRequest;
 use App\Models\User;
 use App\Repositories\MaintenanceRequestHistoryRepository;
 use App\Repositories\MaintenanceRequestRepository;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class MaintenanceRequestService
@@ -21,6 +24,24 @@ class MaintenanceRequestService
     public function listForUser(User $user): Collection
     {
         return $this->maintenanceRequestRepository->listForUser($user);
+    }
+
+    public function findById(int $id, User $user): MaintenanceRequest
+    {
+        $maintenanceRequest = $this->maintenanceRequestRepository->findById($id);
+
+        if (! $maintenanceRequest) {
+            throw new ModelNotFoundException;
+        }
+
+        if (
+            $user->role !== UserRoleEnum::Admin &&
+            $maintenanceRequest->requester_id !== $user->id
+        ) {
+            throw new AuthorizationException('Você não tem permissão para visualizar esta solicitação.');
+        }
+
+        return $maintenanceRequest;
     }
 
     public function create(array $data, User $user): MaintenanceRequest

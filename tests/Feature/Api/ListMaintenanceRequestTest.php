@@ -1,35 +1,25 @@
 <?php
 
 use App\Enums\UserRoleEnum;
-use App\Models\MaintenanceRequest;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
+beforeEach(function () {
+    $this->user = User::factory()->create();
+});
+
 it('permite que um solicitante visualize somente suas solicitações', function () {
-    $user = User::factory()->create();
     $otherUser = User::factory()->create();
 
-    $user->role = UserRoleEnum::Requester;
-    $user->save();
+    $ownRequest = createMaintenanceRequest($this->user);
 
-    $otherUser->role = UserRoleEnum::Requester;
-    $otherUser->save();
-
-    $ownRequest = MaintenanceRequest::create([
-        'title' => 'Ar-condicionado com defeito',
-        'description' => 'O equipamento não está refrigerando.',
-        'location' => 'Sala 203',
-        'requester_id' => $user->id,
-    ]);
-
-    $otherRequest = MaintenanceRequest::create([
+    $otherRequest = createMaintenanceRequest($otherUser, [
         'title' => 'Lâmpada queimada',
         'description' => 'A lâmpada precisa ser substituída.',
         'location' => 'Corredor principal',
-        'requester_id' => $otherUser->id,
     ]);
 
-    Sanctum::actingAs($user);
+    Sanctum::actingAs($this->user);
 
     $response = $this->getJson('/api/maintenance-requests');
 
@@ -40,24 +30,20 @@ it('permite que um solicitante visualize somente suas solicitações', function 
 });
 
 it('permite que um administrador visualize todas as solicitações', function () {
-    $admin = User::factory()->create();
-    $user = User::factory()->create();
+    $admin = User::factory()->create([
+        'role' => UserRoleEnum::Admin,
+    ]);
 
-    $admin->role = UserRoleEnum::Admin;
-    $admin->save();
-
-    $firstRequest = MaintenanceRequest::create([
+    $firstRequest = createMaintenanceRequest($this->user, [
         'title' => 'Problema elétrico',
         'description' => 'Tomada apresentando falhas.',
         'location' => 'Sala 101',
-        'requester_id' => $user->id,
     ]);
 
-    $secondRequest = MaintenanceRequest::create([
+    $secondRequest = createMaintenanceRequest($this->user, [
         'title' => 'Vazamento de água',
         'description' => 'Vazamento no banheiro.',
         'location' => 'Banheiro principal',
-        'requester_id' => $user->id,
     ]);
 
     Sanctum::actingAs($admin);
@@ -77,14 +63,11 @@ it('não permite listar solicitações sem autenticação', function () {
 });
 
 it('retorna uma lista vazia quando o solicitante não possui solicitações', function () {
-    $user = User::factory()->create();
-
-    Sanctum::actingAs($user);
+    Sanctum::actingAs($this->user);
 
     $response = $this->getJson('/api/maintenance-requests');
 
     $response->assertOk()
-        ->assertJsonCount(0, 'data')
         ->assertExactJson([
             'data' => [],
         ]);

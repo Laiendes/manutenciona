@@ -9,11 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class MaintenanceRequestRepository
 {
-    public function create(array $data): MaintenanceRequest
-    {
-        return MaintenanceRequest::create($data);
-    }
-
     public function listForUser(User $user): Collection
     {
         $query = MaintenanceRequest::query();
@@ -23,5 +18,15 @@ class MaintenanceRequestRepository
         }
 
         return $query->latest()->get();
+    }
+
+    public function create(array $data): MaintenanceRequest
+    {
+        return MaintenanceRequest::create($data);
+    }
+
+    public function findById(int $id): ?MaintenanceRequest
+    {
+        return MaintenanceRequest::find($id);
     }
 }
