@@ -30,4 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/maintenance-requests/{id}/history', [MaintenanceRequestController::class, 'history'])
         ->name('maintenance-requests.history');
+
+    Route::patch('/maintenance-requests/{id}/assign', [MaintenanceRequestController::class, 'assign'])
+        ->name('maintenance-requests.assign');
 });

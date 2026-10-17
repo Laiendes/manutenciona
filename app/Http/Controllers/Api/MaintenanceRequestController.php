@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssignMaintenanceRequestRequest;
 use App\Http\Requests\StoreMaintenanceRequestRequest;
 use App\Http\Resources\MaintenanceRequestHistoryResource;
 use App\Http\Resources\MaintenanceRequestResource;
@@ -26,16 +27,6 @@ class MaintenanceRequestController extends Controller
         return MaintenanceRequestResource::collection($maintenanceRequests);
     }
 
-    public function show(int $id, Request $request): MaintenanceRequestResource
-    {
-        $maintenanceRequest = $this->maintenanceRequestService->findById(
-            $id,
-            $request->user()
-        );
-
-        return new MaintenanceRequestResource($maintenanceRequest);
-    }
-
     public function store(StoreMaintenanceRequestRequest $request): JsonResponse
     {
         $maintenanceRequest = $this->maintenanceRequestService->create(
@@ -48,6 +39,16 @@ class MaintenanceRequestController extends Controller
             ->setStatusCode(201);
     }
 
+    public function show(int $id, Request $request): MaintenanceRequestResource
+    {
+        $maintenanceRequest = $this->maintenanceRequestService->findById(
+            $id,
+            $request->user()
+        );
+
+        return new MaintenanceRequestResource($maintenanceRequest);
+    }
+
     public function history(int $id, Request $request): AnonymousResourceCollection
     {
         $history = $this->maintenanceRequestService->getHistory(
@@ -56,5 +57,16 @@ class MaintenanceRequestController extends Controller
         );
 
         return MaintenanceRequestHistoryResource::collection($history);
+    }
+
+    public function assign(int $id, AssignMaintenanceRequestRequest $request): MaintenanceRequestResource
+    {
+        $maintenanceRequest = $this->maintenanceRequestService->assign(
+            $id,
+            $request->validated(),
+            $request->user()
+        );
+
+        return new MaintenanceRequestResource($maintenanceRequest);
     }
 }

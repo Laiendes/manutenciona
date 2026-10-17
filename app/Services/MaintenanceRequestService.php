@@ -77,4 +77,32 @@ class MaintenanceRequestService
             return $maintenanceRequest;
         });
     }
+
+    public function assign(int $id, array $data, User $user): MaintenanceRequest
+    {
+        if ($user->role !== UserRoleEnum::Admin) {
+            throw new AuthorizationException('Você não tem permissão para atribuir responsáveis.');
+        }
+
+        $maintenanceRequest = $this->findById($id, $user);
+
+        return DB::transaction(function () use ($maintenanceRequest, $data, $user): MaintenanceRequest {
+            $previousAssigneeId = $maintenanceRequest->assignee_id;
+
+            $maintenanceRequest = $this->maintenanceRequestRepository->update(
+                $maintenanceRequest,
+                ['assignee_id' => $data['assignee_id']]
+            );
+
+            $this->maintenanceRequestHistoryRepository->create([
+                'maintenance_request_id' => $maintenanceRequest->id,
+                'actor_id' => $user->id,
+                'old_status' => $maintenanceRequest->status->value,
+                'new_status' => $maintenanceRequest->status->value,
+                'description' => "Responsável alterado de {$previousAssigneeId} para {$data['assignee_id']}.",
+            ]);
+
+            return $maintenanceRequest;
+        });
+    }
 }

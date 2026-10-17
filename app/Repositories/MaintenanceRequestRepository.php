@@ -29,4 +29,11 @@ class MaintenanceRequestRepository
     {
         return MaintenanceRequest::find($id);
     }
+
+    public function update(MaintenanceRequest $maintenanceRequest, array $data): MaintenanceRequest
+    {
+        $maintenanceRequest->update($data);
+
+        return $maintenanceRequest;
+    }
 }
