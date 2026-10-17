@@ -13,6 +13,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class MaintenanceRequestService
 {
@@ -100,6 +101,52 @@ class MaintenanceRequestService
                 'old_status' => $maintenanceRequest->status->value,
                 'new_status' => $maintenanceRequest->status->value,
                 'description' => "Responsável alterado de {$previousAssigneeId} para {$data['assignee_id']}.",
+            ]);
+
+            return $maintenanceRequest;
+        });
+    }
+
+    public function updateStatus(int $id, array $data, User $user): MaintenanceRequest
+    {
+        if ($user->role !== UserRoleEnum::Admin) {
+            throw new AuthorizationException('Você não tem permissão para alterar o status.');
+        }
+
+        return DB::transaction(function () use ($id, $data, $user): MaintenanceRequest {
+            $maintenanceRequest = $this->findById($id, $user);
+
+            $currentStatus = $maintenanceRequest->status;
+            $newStatus = MaintenanceRequestStatusEnum::from($data['status']);
+
+            $allowedTransitions = [
+                MaintenanceRequestStatusEnum::Open->value => [
+                    MaintenanceRequestStatusEnum::InProgress,
+                    MaintenanceRequestStatusEnum::Cancelled,
+                ],
+                MaintenanceRequestStatusEnum::InProgress->value => [
+                    MaintenanceRequestStatusEnum::Completed,
+                    MaintenanceRequestStatusEnum::Cancelled,
+                ],
+            ];
+
+            if (! in_array($newStatus, $allowedTransitions[$currentStatus->value] ?? [], true)) {
+                throw ValidationException::withMessages([
+                    'status' => ['Transição de status não permitida.'],
+                ]);
+            }
+
+            $maintenanceRequest = $this->maintenanceRequestRepository->update(
+                $maintenanceRequest,
+                ['status' => $newStatus]
+            );
+
+            $this->maintenanceRequestHistoryRepository->create([
+                'maintenance_request_id' => $maintenanceRequest->id,
+                'actor_id' => $user->id,
+                'old_status' => $currentStatus->value,
+                'new_status' => $newStatus->value,
+                'description' => "Status alterado de {$currentStatus->value} para {$newStatus->value}.",
             ]);
 
             return $maintenanceRequest;

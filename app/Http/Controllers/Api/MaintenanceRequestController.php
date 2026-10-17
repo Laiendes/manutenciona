@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignMaintenanceRequestRequest;
 use App\Http\Requests\StoreMaintenanceRequestRequest;
+use App\Http\Requests\UpdateMaintenanceRequestStatusRequest;
 use App\Http\Resources\MaintenanceRequestHistoryResource;
 use App\Http\Resources\MaintenanceRequestResource;
 use App\Services\MaintenanceRequestService;
@@ -62,6 +63,19 @@ class MaintenanceRequestController extends Controller
     public function assign(int $id, AssignMaintenanceRequestRequest $request): MaintenanceRequestResource
     {
         $maintenanceRequest = $this->maintenanceRequestService->assign(
+            $id,
+            $request->validated(),
+            $request->user()
+        );
+
+        return new MaintenanceRequestResource($maintenanceRequest);
+    }
+
+    public function updateStatus(
+        int $id,
+        UpdateMaintenanceRequestStatusRequest $request
+    ): MaintenanceRequestResource {
+        $maintenanceRequest = $this->maintenanceRequestService->updateStatus(
             $id,
             $request->validated(),
             $request->user()

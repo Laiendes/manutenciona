@@ -33,4 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('/maintenance-requests/{id}/assign', [MaintenanceRequestController::class, 'assign'])
         ->name('maintenance-requests.assign');
+
+    Route::patch('/maintenance-requests/{id}/status', [MaintenanceRequestController::class, 'updateStatus'])
+        ->name('maintenance-requests.update-status');
 });
