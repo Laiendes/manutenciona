@@ -114,3 +114,17 @@ it('não permite cadastro com senha menor que oito caracteres', function () {
 
     $this->assertDatabaseCount('users', 0);
 });
+
+it('retorna somente os campos públicos do usuário no cadastro', function () {
+    $response = $this->postJson('/api/register', $this->data);
+
+    $response
+        ->assertCreated()
+        ->assertJsonCount(4, 'data.user')
+        ->assertJsonPath('data.user.name', 'João Silva')
+        ->assertJsonPath('data.user.email', 'joao@example.com')
+        ->assertJsonPath('data.user.role', 'requester')
+        ->assertJsonMissingPath('data.user.created_at')
+        ->assertJsonMissingPath('data.user.updated_at')
+        ->assertJsonMissingPath('data.user.email_verified_at');
+});

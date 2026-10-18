@@ -76,3 +76,24 @@ it('não permite login sem os campos obrigatórios', function () {
 
     $this->assertDatabaseCount('personal_access_tokens', 0);
 });
+
+it('retorna somente os campos públicos do usuário no login', function () {
+    $user = User::factory()->create([
+        'email' => 'joao@example.com',
+        'password' => 'SenhaSegura123',
+    ]);
+
+    $response = $this->postJson('/api/login', [
+        'email' => 'joao@example.com',
+        'password' => 'SenhaSegura123',
+    ]);
+
+    $response
+        ->assertOk()
+        ->assertJsonCount(4, 'data.user')
+        ->assertJsonPath('data.user.id', $user->id)
+        ->assertJsonPath('data.user.email', $user->email)
+        ->assertJsonMissingPath('data.user.created_at')
+        ->assertJsonMissingPath('data.user.updated_at')
+        ->assertJsonMissingPath('data.user.email_verified_at');
+});

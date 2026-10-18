@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MaintenanceRequestController;
+use App\Http\Resources\Api\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +14,7 @@ Route::post('/login', [AuthController::class, 'login'])
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return new UserResource($request->user());
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])
