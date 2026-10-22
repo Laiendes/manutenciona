@@ -78,7 +78,7 @@ Node.js and npm are only needed if you intend to build the Laravel frontend asse
 1. Clone the repository and enter the project directory:
 
    ```bash
-   git clone <REPOSITORY_URL>
+   git clone https://github.com/Laiendes/manutenciona.git
    cd manutenciona
    ```
 
@@ -339,8 +339,6 @@ The project separates HTTP concerns from business rules to keep the code easier 
 The history feature is especially important: maintenance requests are not just records with a current status. They represent a sequence of decisions and changes. By recording those changes, the system makes it possible to understand how a request progressed and who acted on it. Database transactions ensure that an update does not silently succeed without its corresponding history entry.
 
 The scope is deliberately limited to a REST API. A future version could add a web dashboard, notifications, filtering, attachments, and more detailed assignment policies. Those enhancements are **not part of the current implementation** and are not required to use the existing endpoints.
-
-Before submitting to CS50, replace the **Video Demo** placeholder with the actual video URL and verify the submission requirements for the relevant CS50 course edition.
 
 ## License
 
